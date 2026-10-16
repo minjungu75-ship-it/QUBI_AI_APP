@@ -6,15 +6,19 @@ import os
 from google import genai
 from google.genai import types
 
-# 1. 페이지 설정
+# ---------------------------------------------------------
+# 1. Page Configuration (Full Width & Clean Dark Theme)
+# ---------------------------------------------------------
 st.set_page_config(
-    page_title="QUBI AI",
+    page_title="QUBI AI - Professional SaaS",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# 2. 세션 상태 초기화
+# ---------------------------------------------------------
+# 2. Session State Initialization
+# ---------------------------------------------------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -34,13 +38,15 @@ if "messages" not in st.session_state:
 if "language" not in st.session_state:
     st.session_state.language = "한국어"
 if "bg_color" not in st.session_state:
-    st.session_state.bg_color = "#121212"
+    st.session_state.bg_color = "#171717"
 if "bg_image_url" not in st.session_state:
     st.session_state.bg_image_url = ""
 if "daily_media_count" not in st.session_state:
     st.session_state.daily_media_count = 0
 
-# 3. 챗지피티 스타일의 완벽한 플랫 다크 테마 CSS (거슬리는 하단 회색 바 제거)
+# ---------------------------------------------------------
+# 3. ChatGPT Style Clean CSS & Perfect Dark Mode Fixes
+# ---------------------------------------------------------
 bg_style = f"background-color: {st.session_state.bg_color};"
 if st.session_state.bg_image_url:
     bg_style += f" background-image: url('{st.session_state.bg_image_url}'); background-size: cover; background-position: center;"
@@ -53,38 +59,31 @@ st.markdown(f"""
     }}
     .block-container {{
         padding-top: 1.5rem;
-        padding-bottom: 8rem;
+        padding-bottom: 9rem;
         max-width: 800px;
     }}
     p, span, label, div, h1, h2, h3, h4 {{
         color: #ECECEC !important;
     }}
-    
-    /* Streamlit 하단 고정 컨테이너 배경을 완전히 투명하게 만들어서 거슬리는 회색 바 제거 */
     div[data-testid="stChatInputContainer"] {{
         background-color: transparent !important;
         border: none !important;
     }}
-    
-    /* 챗지피티처럼 입력창 자체를 둥근 다크 톤 박스로 고정 */
     .stChatInput {{
         position: fixed;
-        bottom: 20px;
+        bottom: 25px;
         left: 50%;
         transform: translateX(-50%);
         width: 100%;
         max-width: 750px;
         z-index: 999;
     }}
-    
     textarea[data-testid="stChatInputTextArea"] {{
         background-color: #212121 !important;
         color: #FFFFFF !important;
         border-radius: 12px !important;
         border: 1px solid #333333 !important;
     }}
-    
-    /* 말풍선 박스 완전 제거 (플랫 디자인) */
     .stChatMessage {{
         background-color: transparent !important;
         border: none !important;
@@ -93,9 +92,8 @@ st.markdown(f"""
         color: #ECECEC !important;
         box-shadow: none !important;
     }}
-    
     .streamlit-expanderHeader {{
-        background-color: #1E1E1E !important;
+        background-color: #212121 !important;
         color: #ECECEC !important;
         border-radius: 8px;
         border: 1px solid #333333;
@@ -103,7 +101,9 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# 4. 데이터베이스 설정 (SQLite 인증 및 고객센터)
+# ---------------------------------------------------------
+# 4. Database Setup (SQLite Auth, Admin Ban & Support Tickets)
+# ---------------------------------------------------------
 DB_FILE = "users.db"
 
 def init_db():
@@ -197,7 +197,9 @@ def update_ticket_status(ticket_id, status):
 
 init_db()
 
-# 5. Gemini API 클라이언트
+# ---------------------------------------------------------
+# 5. Gemini API Client Initialization
+# ---------------------------------------------------------
 def get_gemini_client():
     api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -206,7 +208,9 @@ def get_gemini_client():
 
 client = get_gemini_client()
 
-# 6. 사이드바 메뉴
+# ---------------------------------------------------------
+# 6. Sidebar Menu (Settings, Auth, Support, Admin)
+# ---------------------------------------------------------
 with st.sidebar:
     st.title("⚙️ QUBI 설정 & 메뉴")
     
@@ -222,7 +226,7 @@ with st.sidebar:
             st.rerun()
             
         if st.button("기본 다크모드 복원", use_container_width=True):
-            st.session_state.bg_color = "#121212"
+            st.session_state.bg_color = "#171717"
             st.session_state.bg_image_url = ""
             st.rerun()
 
@@ -333,7 +337,9 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# 7. 온보딩 화면
+# ---------------------------------------------------------
+# 7. Onboarding Flow
+# ---------------------------------------------------------
 if st.session_state.logged_in and not st.session_state.onboarding_complete:
     st.markdown("## 👋 QUBI AI에 오신 것을 환영합니다!")
     st.write("맞춤형 컨설팅을 위한 최초 설정을 진행합니다.")
@@ -347,7 +353,9 @@ if st.session_state.logged_in and not st.session_state.onboarding_complete:
         st.rerun()
     st.stop()
 
-# 8. 결제 유도 화면 (Paywall)
+# ---------------------------------------------------------
+# 8. Paywall Screen (Pro 플랜 결제 유도)
+# ---------------------------------------------------------
 if st.session_state.logged_in and st.session_state.show_paywall:
     st.markdown("---")
     st.markdown("# 💎 QUBI Pro 플랜으로 업그레이드하세요!")
@@ -374,13 +382,15 @@ if st.session_state.logged_in and st.session_state.show_paywall:
     st.markdown("---")
     st.stop()
 
-# 9. 메인 채팅 화면 (깔끔한 챗지피티 플랫 스타일)
+# ---------------------------------------------------------
+# 9. Main Chat Interface (ChatGPT Style & Clean Media Limit Handling)
+# ---------------------------------------------------------
 col_top1, col_top2 = st.columns([4, 1])
 with col_top1:
     st.markdown("### 🤖 QUBI AI")
 with col_top2:
     if st.session_state.logged_in and not st.session_state.is_plan_paid:
-        if st.button("✨ 플랜 업그레이드", use_container_width=True):
+        if st.button("✨ 업그레이드", use_container_width=True):
             st.session_state.show_paywall = True
             st.rerun()
 
@@ -395,24 +405,37 @@ for message in st.session_state.messages:
 if len(st.session_state.messages) == 0:
     st.info(f"👋 안녕하세요 {st.session_state.username if st.session_state.logged_in else '방문자'}님! [{st.session_state.user_interest}] 모드입니다. 대화를 시작해 보세요.")
 
-if not st.session_state.is_plan_paid:
-    st.caption(f"📸 오늘 미디어 사용 량: {st.session_state.daily_media_count} / 15장 (무료 제한)")
-else:
-    st.caption("💎 QUBI Pro 플랜 이용 중 (무제한)")
+# 미디어 15장 제한 체크 및 16장째 반투명/차단 효과 처리
+media_limit_reached = (not st.session_state.is_plan_paid) and (st.session_state.daily_media_count >= 15)
 
-with st.expander("➕ 이미지 및 미디어 파일 첨부", expanded=False):
-    uploaded_files = st.file_uploader("파일 업로드", type=["png", "jpg", "jpeg", "mp3", "wav"], accept_multiple_files=True)
-    camera_photo = st.camera_input("카메라 촬영")
+if media_limit_reached:
+    upload_label = "➕ 🔒 이미지 및 미디어 첨부 (무료 한도 15장 초과 - Pro 필요)"
+else:
+    upload_label = f"➕ 이미지 및 미디어 파일 첨부 (오늘 남은 무료: {15 - st.session_state.daily_media_count}장)"
+
+with st.expander(upload_label, expanded=False):
+    if media_limit_reached:
+        st.warning("⚠️ 오늘의 무료 미디어 업로드 한도(15장)를 모두 사용하셨습니다.")
+        if st.button("💎 Pro 플랜으로 무제한 이용하기", use_container_width=True):
+            st.session_state.show_paywall = True
+            st.rerun()
+    else:
+        uploaded_files = st.file_uploader("파일 업로드", type=["png", "jpg", "jpeg", "mp3", "wav"], accept_multiple_files=True)
+        camera_photo = st.camera_input("카메라 촬영")
 
 if user_prompt := st.chat_input("메시지를 입력하세요..."):
-    total_files = (len(uploaded_files) if uploaded_files else 0) + (1 if camera_photo else 0)
+    # 파일 변수 안전 할당
+    cur_files = uploaded_files if ('uploaded_files' in locals() and uploaded_files and not media_limit_reached) else []
+    cur_cam = camera_photo if ('camera_photo' in locals() and camera_photo and not media_limit_reached) else None
+    
+    total_files = len(cur_files) + (1 if cur_cam else 0)
     if not st.session_state.is_plan_paid and (st.session_state.daily_media_count + total_files > 15):
         st.session_state.show_paywall = True
-        st.warning("⚠️ 무료 플랜의 하루 미디어 업로드 한도(15장)를 초과했습니다. Pro 플랜을 확인해 주세요!")
+        st.warning("⚠️ 무료 미디어 한도(15장)를 초과했습니다!")
         time.sleep(1)
         st.rerun()
     
-    if not st.session_state.is_plan_paid:
+    if not st.session_state.is_plan_paid and total_files > 0:
         st.session_state.daily_media_count += total_files
 
     st.session_state.messages.append({"role": "user", "content": user_prompt})
@@ -438,11 +461,11 @@ if user_prompt := st.chat_input("메시지를 입력하세요..."):
                     parts=[types.Part.from_text(text=msg["content"])]
                 ))
 
-            if uploaded_files:
-                for uf in uploaded_files:
+            if cur_files:
+                for uf in cur_files:
                     contents.append(types.Part.from_bytes(data=uf.read(), mime_type=uf.type))
-            if camera_photo:
-                contents.append(types.Part.from_bytes(data=camera_photo.read(), mime_type="image/jpeg"))
+            if cur_cam:
+                contents.append(types.Part.from_bytes(data=cur_cam.read(), mime_type="image/jpeg"))
 
             response = client.models.generate_content_stream(
                 model='gemini-2.5-flash',
@@ -454,14 +477,14 @@ if user_prompt := st.chat_input("메시지를 입력하세요..."):
             )
 
             for chunk in response:
-                if chunk.text:
-                    chunk_text = str(chunk.text)
-                    full_response += chunk_text
+                if chunk and getattr(chunk, 'text', None):
+                    full_response += str(chunk.text)
                     message_placeholder.markdown(full_response + "▌")
             
             message_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         except Exception as e:
-            st.error(f"오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
+            st.error(f"오류가 발생했습니다: 안전한 처리를 위해 잠시 후 다시 시도해 주세요.")
+
 

@@ -189,12 +189,15 @@ def update_ticket_status(ticket_id, status):
 
 init_db()
 
-# 5. Gemini API 클라이언트
+# 5. Gemini API 클라이언트 (인코딩 안전 장치 포함)
 def get_gemini_client():
     api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     if not api_key:
         return None
-    return genai.Client(api_key=api_key)
+    # 한글이나 공백이 포함된 잘못된 API 키가 들어온 경우 차단
+    if any(ord(c) >= 128 for c in api_key) or "본인" in api_key:
+        return "INVALID_KEY"
+    return genai.Client(api_key=str(api_key).strip())
 
 client = get_gemini_client()
 
@@ -376,8 +379,8 @@ with col_top2:
             st.session_state.show_paywall = True
             st.rerun()
 
-if not client:
-    st.error("⚠️ GEMINI_API_KEY가 설정되지 않았습니다. Streamlit Secrets를 확인해 주세요.")
+if client == "INVALID_KEY" or not client:
+    st.error("⚠️ Streamlit Secrets에 입력하신 `GEMINI_API_KEY`에 한글이나 플레이스홀더 문구가 포함되어 있습니다. 올바른 영문/숫자 API 키를 입력해 주세요!")
     st.stop()
 
 for message in st.session_state.messages:

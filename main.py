@@ -6,19 +6,15 @@ import os
 from google import genai
 from google.genai import types
 
-# ---------------------------------------------------------
-# 1. Page Configuration (Full Width & Clean Dark Theme)
-# ---------------------------------------------------------
+# 1. 페이지 설정
 st.set_page_config(
-    page_title="QUBI AI - Professional SaaS",
+    page_title="QUBI AI",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ---------------------------------------------------------
-# 2. Session State Initialization
-# ---------------------------------------------------------
+# 2. 세션 상태 초기화
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -44,9 +40,7 @@ if "bg_image_url" not in st.session_state:
 if "daily_media_count" not in st.session_state:
     st.session_state.daily_media_count = 0
 
-# ---------------------------------------------------------
-# 3. ChatGPT Style Clean CSS & Perfect Dark Mode Fixes
-# ---------------------------------------------------------
+# 3. 챗지피티 스타일의 완벽한 플랫 다크 테마 CSS (거슬리는 하단 회색 바 제거)
 bg_style = f"background-color: {st.session_state.bg_color};"
 if st.session_state.bg_image_url:
     bg_style += f" background-image: url('{st.session_state.bg_image_url}'); background-size: cover; background-position: center;"
@@ -58,51 +52,58 @@ st.markdown(f"""
         color: #ECECEC !important;
     }}
     .block-container {{
-        padding-top: 2rem;
-        padding-bottom: 9rem;
+        padding-top: 1.5rem;
+        padding-bottom: 8rem;
         max-width: 800px;
     }}
     p, span, label, div, h1, h2, h3, h4 {{
         color: #ECECEC !important;
     }}
-    /* ChatGPT 스타일 채팅 입력창을 화면 정중앙 하단에 고정 */
+    
+    /* Streamlit 하단 고정 컨테이너 배경을 완전히 투명하게 만들어서 거슬리는 회색 바 제거 */
+    div[data-testid="stChatInputContainer"] {{
+        background-color: transparent !important;
+        border: none !important;
+    }}
+    
+    /* 챗지피티처럼 입력창 자체를 둥근 다크 톤 박스로 고정 */
     .stChatInput {{
         position: fixed;
-        bottom: 25px;
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         width: 100%;
         max-width: 750px;
         z-index: 999;
     }}
-    /* 입력창 내부 텍스트 및 배경을 확실하게 흰색 글씨 & 다크톤으로 지정 */
+    
     textarea[data-testid="stChatInputTextArea"] {{
-        background-color: #1E1E1E !important;
+        background-color: #212121 !important;
         color: #FFFFFF !important;
+        border-radius: 12px !important;
+        border: 1px solid #333333 !important;
     }}
-    input, textarea {{
-        color: #FFFFFF !important;
-    }}
-    /* 말풍선 박스 테두리/배경을 없애고 챗지피티처럼 플랫하게 구성 */
+    
+    /* 말풍선 박스 완전 제거 (플랫 디자인) */
     .stChatMessage {{
         background-color: transparent !important;
         border: none !important;
-        padding: 12px 0px;
-        margin-bottom: 8px;
+        padding: 10px 0px;
+        margin-bottom: 6px;
         color: #ECECEC !important;
         box-shadow: none !important;
     }}
+    
     .streamlit-expanderHeader {{
         background-color: #1E1E1E !important;
         color: #ECECEC !important;
         border-radius: 8px;
+        border: 1px solid #333333;
     }}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# 4. Database Setup (SQLite Auth, Admin Ban & Support Tickets)
-# ---------------------------------------------------------
+# 4. 데이터베이스 설정 (SQLite 인증 및 고객센터)
 DB_FILE = "users.db"
 
 def init_db():
@@ -196,9 +197,7 @@ def update_ticket_status(ticket_id, status):
 
 init_db()
 
-# ---------------------------------------------------------
-# 5. Gemini API Client Initialization
-# ---------------------------------------------------------
+# 5. Gemini API 클라이언트
 def get_gemini_client():
     api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -207,13 +206,10 @@ def get_gemini_client():
 
 client = get_gemini_client()
 
-# ---------------------------------------------------------
-# 6. Sidebar Menu (Settings, Auth, Support, Admin)
-# ---------------------------------------------------------
+# 6. 사이드바 메뉴
 with st.sidebar:
     st.title("⚙️ QUBI 설정 & 메뉴")
     
-    # 🎨 배경 테마 커스텀
     with st.expander("🎨 배경 테마 커스텀", expanded=False):
         color_choice = st.color_picker("배경색 선택", value=st.session_state.bg_color)
         if color_choice != st.session_state.bg_color:
@@ -232,7 +228,6 @@ with st.sidebar:
 
     st.divider()
 
-    # 👤 회원 계정 및 로그인/회원가입
     if not st.session_state.logged_in:
         auth_mode = st.radio("접속 모드", ["로그인", "회원가입"], key="auth_mode")
         user_input = st.text_input("아이디", key="auth_user")
@@ -267,7 +262,7 @@ with st.sidebar:
         st.caption(f"플랜 상태: {plan_str}")
         
         if not st.session_state.is_plan_paid:
-            if st.button("💎 Pro 플랜 가입 (월 9,900원)", use_container_width=True):
+            if st.button("💎 플랜 업그레이드 (월 9,900원)", use_container_width=True):
                 st.session_state.show_paywall = True
                 st.rerun()
         
@@ -281,7 +276,6 @@ with st.sidebar:
 
     st.divider()
 
-    # 🎯 관심사 & 언어 설정
     if st.session_state.logged_in:
         with st.expander("👤 프로필 및 관심사 변경", expanded=False):
             st.session_state.user_interest = st.selectbox(
@@ -295,7 +289,6 @@ with st.sidebar:
                 index=0
             )
 
-    # 🎧 1:1 고객센터
     if st.session_state.logged_in:
         with st.expander("🎧 고객센터 (1:1 문의)", expanded=False):
             t_title = st.text_input("문의 제목", placeholder="제목을 입력하세요")
@@ -307,7 +300,6 @@ with st.sidebar:
                 else:
                     st.warning("제목과 내용을 모두 입력해 주세요.")
 
-    # 👑 관리자 모드 (Ban 및 문의함 관리)
     if st.session_state.is_admin:
         st.divider()
         st.subheader("👑 관리자 대시보드")
@@ -331,7 +323,7 @@ with st.sidebar:
                 st.markdown(f"**[{t_id}] {t_title}** ({t_user})")
                 st.caption(f"내용: {t_content} | 상태: {t_status}")
                 if t_status == "접수됨":
-                    if c_btn := st.button("답변 완료 처리", key=f"res_{t_id}"):
+                    if st.button("답변 완료 처리", key=f"res_{t_id}"):
                         update_ticket_status(t_id, "답변 완료")
                         st.rerun()
                 st.divider()
@@ -341,9 +333,7 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# ---------------------------------------------------------
-# 7. Onboarding Flow (로그인 후 최초 관심사/언어 설정)
-# ---------------------------------------------------------
+# 7. 온보딩 화면
 if st.session_state.logged_in and not st.session_state.onboarding_complete:
     st.markdown("## 👋 QUBI AI에 오신 것을 환영합니다!")
     st.write("맞춤형 컨설팅을 위한 최초 설정을 진행합니다.")
@@ -357,9 +347,7 @@ if st.session_state.logged_in and not st.session_state.onboarding_complete:
         st.rerun()
     st.stop()
 
-# ---------------------------------------------------------
-# 8. Paywall Screen (월 9,900원 Pro 플랜 결제 유도)
-# ---------------------------------------------------------
+# 8. 결제 유도 화면 (Paywall)
 if st.session_state.logged_in and st.session_state.show_paywall:
     st.markdown("---")
     st.markdown("# 💎 QUBI Pro 플랜으로 업그레이드하세요!")
@@ -386,10 +374,15 @@ if st.session_state.logged_in and st.session_state.show_paywall:
     st.markdown("---")
     st.stop()
 
-# ---------------------------------------------------------
-# 9. Main Chat Interface (ChatGPT Style & Multi-modal)
-# ---------------------------------------------------------
-st.markdown("### 🤖 QUBI AI")
+# 9. 메인 채팅 화면 (깔끔한 챗지피티 플랫 스타일)
+col_top1, col_top2 = st.columns([4, 1])
+with col_top1:
+    st.markdown("### 🤖 QUBI AI")
+with col_top2:
+    if st.session_state.logged_in and not st.session_state.is_plan_paid:
+        if st.button("✨ 플랜 업그레이드", use_container_width=True):
+            st.session_state.show_paywall = True
+            st.rerun()
 
 if not client:
     st.error("⚠️ GEMINI_API_KEY가 설정되지 않았습니다. Streamlit Secrets를 확인해 주세요.")
@@ -471,3 +464,4 @@ if user_prompt := st.chat_input("메시지를 입력하세요..."):
 
         except Exception as e:
             st.error(f"오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
+

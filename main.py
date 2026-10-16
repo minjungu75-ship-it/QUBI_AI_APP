@@ -1,29 +1,4 @@
-update_ticket_status(t_id, "답변 완료")
-                        st.rerun()
-                st.divider()
 
-    st.divider()
-    if st.button("🗑️ 대화 기록 초기화", use_container_width=True):
-        st.session_state.messages = []
-        st.rerun()
-
-# ---------------------------------------------------------
-# 7. Onboarding Flow
-# ---------------------------------------------------------
-if st.session_state.logged_in and not st.session_state.onboarding_complete:
-    st.markdown("## 👋 QUBI AI에 오신 것을 환영합니다!")
-    st.write("맞춤형 컨설팅을 위한 최초 설정을 진행합니다.")
-    sel_lang = st.selectbox("사용하실 언어를 선택하세요", ["한국어", "English", "日本語", "中文"])
-    sel_int = st.selectbox("관심 있는 분야를 선택해 주세요", ["일반 비즈니스 / 종합", "IT / 기술 / 코딩", "소상공인 / 마케팅", "디자인 / 크리에이티브", "학술 / 연구"])
-    
-    if st.button("설정 완료하고 시작하기", type="primary", use_container_width=True):
-        st.session_state.language = sel_lang
-        st.session_state.user_interest = sel_int
-        st.session_state.onboarding_complete = True
-        st.rerun()
-    st.stop()
-
-# ---------------------------------------------------------
 # 8. Paywall Screen (Pro 플랜 결제 유도)
 # ---------------------------------------------------------
 if st.session_state.logged_in and st.session_state.show_paywall:
@@ -159,4 +134,4 @@ if user_prompt := st.chat_input("메시지를 입력하세요..."):
 
 
 
-                        
+                  
